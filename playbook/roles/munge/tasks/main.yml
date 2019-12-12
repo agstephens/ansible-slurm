@@ -1,0 +1,26 @@
+---
+
+  - name: check local slurm-cache exists
+    local_action: command mkdir -p "{{ local_slurm_cache }}"
+
+  - name: Start Munge service
+    service: name=munge state=started
+    register: munge_installed
+    ignore_errors: yes
+
+  - name: Include "{{ansible_os_family}}" munge recipe if package is not present
+    include: "{{ansible_os_family}}.yaml"
+    when: munge_installed is failed
+
+  - name: Register munge key
+    stat: path=/etc/munge/munge.key
+    register: munge_key
+
+  - name: set munge log directory access rights
+    file: path=/var/log/munge state=directory mode=0700
+
+  - name: set log directory access rights
+    file: path=/var/log state=directory mode=0755
+
+  - name: Include "{{munge_type_of_node}}" munge recipe
+    include: "{{munge_type_of_node}}.yaml"

@@ -1,0 +1,18 @@
+galaxy_info:
+  author: alpegon3@upv.es
+  description: Install SLURM cluster
+  company:  GRyCAP
+  license: Apache
+  min_ansible_version: 2.0
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+  galaxy_tags:
+    - slurm
+    - lrms
+
+dependencies:
+  - { role: 'ntp', ntp_config_server: [ntp.upv.es, ntp.uv.es] }
+  - { role: 'munge', munge_type_of_node: "{{ slurm_type_of_node }}" }
+  - { role: 'ssh', ssh_type_of_node: "{{ slurm_type_of_node }}", ssh_user: "{{ slurm_user }}" }

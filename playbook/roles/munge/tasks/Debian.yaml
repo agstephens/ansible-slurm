@@ -1,0 +1,8 @@
+---
+  - name: Install munge
+    apt: name=munge update_cache=yes cache_valid_time=3600
+    register: munge_install
+
+  - name: Delete /etc/munge/munge.key created in munge installation
+    file: path=/etc/munge/munge.key state=absent
+    when: munge_install|changed
