@@ -1,0 +1,26 @@
+---
+
+- name: hosts fix
+  hosts: all
+  tasks:
+
+    - name: add to hosts file
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^192\.168\.50\.74'
+        line: 192.168.50.74 slurmserver slurmserver.localdomain
+
+    - name: add to hosts file
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^192\.168\.50\.76'
+        line: 192.168.50.76 slurmworker1 slurmworker1.localdomain
+
+    - name: copy across id_rsa file
+      copy:
+        src: /root/.ssh/id_rsa
+        dest: /root/.ssh/id_rsa
+        owner: root
+        group: root
+        mode: '0400'
+

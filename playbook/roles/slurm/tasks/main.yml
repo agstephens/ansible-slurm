@@ -18,6 +18,14 @@
     static: false
     when: not slurm_installed.stat.exists
 
+  - name: copy hostname script to nodes
+    copy:
+      src: hostname_script
+      dest: /root/hostname.sh
+      owner: root
+      group: root
+      mode: '0640'
+
   - name: Set SLURM conf file path as fact RH
     set_fact:
       SLURM_CONF: "/etc/slurm/slurm.conf"

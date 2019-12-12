@@ -5,4 +5,4 @@
      - role: slurm
        slurm_type_of_node: 'front'
        slurm_server_ip: '192.168.50.74'
-       slurm_wn_nodenames: ['slurmworker']
+       slurm_wn_nodenames: ['slurmworker1']

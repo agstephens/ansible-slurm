@@ -1,8 +1,8 @@
-SSH set-up:
+Start-up:
 
- - Make sure ALL servers have:
-  ~/.ssh/id_rsa # 0400 
+ - For vagrant, run:
 
+ansible-playbook -i inventories/hosts-vagrant etc-hosts-playbook.yml
 
 
 My playbook:
