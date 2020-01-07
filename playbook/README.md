@@ -1,88 +1,103 @@
-FOR TOMORROW:
+# Ansible SLURM playbook
 
- - separate worker node
- - separate server node (wiped)
+## Modes
 
-Add hosts on ANSIBLE (source) server:
+This playbook can install a SLURM cluster:
+ - one server node
+ - separate worker node(s)
 
- echo "192.168.50.74 slurmserver slurmserver.localdomain" >> /etc/hosts
- echo "192.168.50.76 slurmworker1 slurmworker1.localdomain" >> /etc/hosts
+Or you can install on one server:
+ - single-server mode
 
-NOTE: Do the same thing on both servers - so the /etc/hosts is updated!!!
+## Credit
 
+The original playbook has been adapted from:
 
-Working with: https://galaxy.ansible.com/grycap/slurm
+https://galaxy.ansible.com/grycap/slurm
 
+Which was initially installed with:
 
+```
 ansible-galaxy install grycap.slurm
-
-
-I had a problem with these lines in `/root/.ansible/roles/grycap.ssh/tasks/front.yaml`:
-
-
 ```
-#- name: Copy generated public key
-#  local_action: command cp /home/{{ssh_user}}/.ssh/id_rsa.pub /tmp/{{ssh_user}}_id_rsa.pub creates=/tmp/{{ssh_user}}_id_rsa.pub
-```
-
-I logged remotely and found that the first file existed so I copied it to the second location manually.
-I did it all on the target server, not locally.
-And I copied the key locally to here as well: /tmp/{{ssh_user}}_id_rsa.pub (/tmp/slurm_id_rsa.pub)
-
-
-I copied his to here:
-
-```
-cp /root/.ansible/roles/grycap.slurm/defaults/main.yml group_vars/all
-```
-
-And then overwrote some content.
 
 ## Running the playbooks
+
+Make sure Ansible is installed first.
+
+## 1. Single-server deployment
+
+Edit the file: 
+
+`inventories/hosts-vagrant-single-server`
+
+Make sure the entries match your IP and hostname.
+
+Run this setup playbook once:
+
+```
+ansible-playbook -i inventories/hosts-vagrant-single-server vagrant-single-server-setup-playbook.yml
+```
+
+Now install SLURM:
+
+```
+ansible-playbook -i inventories/hosts-vagrant-single-server single-server-playbook.yml
+```
+
+See below for testing and troubleshooting.
+
+## 2. Cluster deployment
+
 
 
 ### Server playbook
 
  ansible-playbook -i inventory server-playbook.yml
 
-!!!Worked!!!
-
 
 ### Worker playbook 
 
  ansible-playbook -i inventory wns-playbook.yml
 
-!!!Failed on running munge!!!
 
-I had to do this:
+## Testing the installation
 
-```
-mkdir server-cache
-scp slurmserver:/etc/munge/munge.key server-cache/
-ssh slurmworker1 mkdir /etc/munge
-scp server-cache/munge.key slurmworker1:/etc/munge/
-ssh slurmworker1 chown -Rf munge.munge /etc/munge
-ssh slurmworker1 chmod 400 /etc/munge/munge.key
-
-scp slurmserver:/etc/slurm/slurm.conf server-cache/slurm.conf
-ssh slurmworker1 mkdir /etc/slurm
-scp server-cache/slurm.conf slurmworker1:/etc/slurm/slurm.conf
-ssh slurmworker1 chown -Rf slurm.slurm /etc/slurm
-```
-
-
-In:  /root/.ansible/roles/grycap.slurm/tasks/wn.yaml
-
-commented out:
+The installation sets up a basic queue and adds a script that you can test with:
 
 ```
-#  - name: copy slurm.conf file from the frontend
-#    copy: src=/etc/slurm/slurm.conf dest=/etc/slurm/slurm.conf
-#    when: ansible_os_family == "RedHat"
+[root@localhost playbook]# ssh oneoff
+Last login: Tue Jan  7 12:36:42 2020 from 192.168.50.70
+$ sbatch ~/hostname.sh  # Submits basic script
+Submitted batch job 2
+
+$squeue                 # shows job in queue (R=RUNNING)
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                 2     debug hostname     root  R       0:02      1 oneoff
+
+$ sleep 10 && squeue    # Wait a while and check queue status
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+
+$ cat host.txt          # Show output of script
+oneoff
 ```
 
-re-ran: ansible-playbook -i inventory wns-playbook.yml
+## Troubleshooting
 
-!!!It works!
+### Log files
 
-## How to test it???
+SLURM log files/dirs are set in:
+
+```
+[root@oneoff slurm]# grep Log slurm.conf
+SlurmctldLogFile=/tmp/slurmctld.log
+SlurmdLogFile=/tmp/slurmd.log
+#SlurmSchedLogFile=
+#SlurmSchedLogLevel=
+
+[root@oneoff slurm]# ls /tmp/slurm*
+/tmp/slurmctld.log  /tmp/slurmd.log
+
+/tmp/slurmd:
+cred_state
+```

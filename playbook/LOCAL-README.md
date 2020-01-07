@@ -16,7 +16,8 @@ My playbook:
  - created vagrant inventory: inventories/hosts-vagrant
 
 
- - destory and recreate: slurm-server VM
+ - destroy and recreate: slurm-server VM
+
  - login to it and append these lines to: /etc/hosts
 192.168.50.74 slurmserver slurmserver.localdomain
 192.168.50.76 slurmworker1 slurmworker1.localdomain

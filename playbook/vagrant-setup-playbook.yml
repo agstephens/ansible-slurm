@@ -4,17 +4,23 @@
   hosts: all
   tasks:
 
-    - name: add to hosts file
+    - name: add to hosts file 1
       lineinfile:
         path: /etc/hosts
         regexp: '^192\.168\.50\.74'
         line: 192.168.50.74 slurmserver slurmserver.localdomain
 
-    - name: add to hosts file
+    - name: add to hosts file 2
       lineinfile:
         path: /etc/hosts
         regexp: '^192\.168\.50\.76'
         line: 192.168.50.76 slurmworker1 slurmworker1.localdomain
+
+    - name: add to hosts file 3
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^192\.168\.50\.9'
+        line: 192.168.50.9 oneoff oneoff.localdomain
 
     - name: copy across id_rsa file
       copy:

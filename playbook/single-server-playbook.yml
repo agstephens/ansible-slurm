@@ -4,15 +4,10 @@
    roles:
      - role: slurm
        slurm_type_of_node: 'front'
-       slurm_server_ip: '192.168.50.74'
-       slurm_wn_nodenames: ['slurmserver']
-       worker_nodes: [slurmserver]
-
- - hosts: wns
-   roles:
+       slurm_wn_nodenames: ['{{ single_server_host }}']
+       worker_nodes: ['{{ single_server_host }}']
      - role: slurm
-       slurm_type_of_node: "wn"
-       slurm_server_ip: "192.168.50.74"
-       slurm_server_name: "slurmserver"
-       worker_nodes: [slurmserver]
+       slurm_type_of_node: 'wn'
+       slurm_server_name: '{{ single_server_host }}'
+       worker_nodes: ['{{ single_server_host }}']
 

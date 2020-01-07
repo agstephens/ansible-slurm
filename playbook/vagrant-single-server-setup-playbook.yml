@@ -1,0 +1,19 @@
+---
+
+- name: hosts setup for vagrant 
+  hosts: all
+  tasks:
+    - name: add to /etc/hosts file 
+      lineinfile:
+        path: /etc/hosts
+        regexp: '{{ ip_regex }}'
+        line: '{{ slurm_server_ip }} {{ single_server_host }} {{ single_server_host }}.localdomain'
+
+    - name: copy across id_rsa file
+      copy:
+        src: /root/.ssh/id_rsa
+        dest: /root/.ssh/id_rsa
+        owner: root
+        group: root
+        mode: '0400'
+
